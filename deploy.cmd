@@ -88,23 +88,50 @@ goto :EOF
 :Deployment
 echo Handling node.js deployment.
 
-:: 1. KuduSync
-IF /I "%IN_PLACE_DEPLOYMENT%" NEQ "1" (
-  call :ExecuteCmd "%KUDU_SYNC_CMD%" -v 50 -f "%DEPLOYMENT_SOURCE%" -t "%DEPLOYMENT_TARGET%" -n "%NEXT_MANIFEST_PATH%" -p "%PREVIOUS_MANIFEST_PATH%" -i ".git;.hg;.deployment;deploy.cmd"
-  IF !ERRORLEVEL! NEQ 0 goto error
-)
-
 :: 2. Select node version
 call :SelectNodeVersion
 
-:: 3. Install npm packages
+:: 2. Install npm devDependancy packages with explicit flag --only=dev at DEPLOYMENT_SOURCE instead of DEPLOYMENT_TARGET
+echo =======  Installing npm  devDependancy packages: Starting at %TIME% ======= 
+IF EXIST "%DEPLOYMENT_SOURCE%\package.json" (
+  pushd "%DEPLOYMENT_SOURCE%"
+  call :ExecuteCmd !NPM_CMD! install --only=dev
+  IF !ERRORLEVEL! NEQ 0 goto error
+  popd
+)
+:: 3. Install bower packages at DEPLOYMENT_SOURCE instead of DEPLOYMENT_TARGET
+echo =======  Installing bower: Starting at %TIME% ======= 
+IF EXIST "%DEPLOYMENT_SOURCE%\bower.json" (
+ pushd "%DEPLOYMENT_SOURCE%"
+ call :ExecuteCmd ".\node_modules\.bin\bower.cmd" install
+ IF !ERRORLEVEL! NEQ 0 goto error
+ popd
+ )
+ :: 4 Execute Gulp tasks at DEPLOYMENT_SOURCE instead of DEPLOYMENT_TARGET
+echo =======  Executing gulp task release: Starting at %TIME% ======= 
+IF EXIST "%DEPLOYMENT_SOURCE%\gulpfile.js" (
+  pushd "%DEPLOYMENT_SOURCE%"
+  echo "Building web site using Gulp" 
+  ::call :ExecuteCmd !GULP_CMD! release-uncompress
+  call :ExecuteCmd ".\node_modules\.bin\gulp.cmd" build --env prod
+  call :ExecuteCmd ".\node_modules\.bin\gulp.cmd" release
+  IF !ERRORLEVEL! NEQ 0 goto error
+  popd
+)
+:: 5. Do KuduSync BEFORE INSTALLING PRODUCTION DEPENDANCIES
+echo ======= Kudu Syncing: Starting at %TIME% ======= 
+IF /I "%IN_PLACE_DEPLOYMENT%" NEQ "1" (
+  call :ExecuteCmd "%KUDU_SYNC_CMD%" -v 50 -f "%DEPLOYMENT_SOURCE%" -t "%DEPLOYMENT_TARGET%" -n "%NEXT_MANIFEST_PATH%" -p "%PREVIOUS_MANIFEST_PATH%" -i ".git;.vscode;node_modules;src;typings;.bowerrc;.deployment;.gitignore;bower.json;deploy.cmd;gulpfile.js;tsconfig.json;tsd.json;.hg;.deployment;deploy.cmd;*.xml;*.yml"
+  IF !ERRORLEVEL! NEQ 0 goto error
+)
+:: 6. Install npm packages at DEPLOYMENT_TARGET 
+echo =======  Installing npm packages: Starting at %TIME% ======= 
 IF EXIST "%DEPLOYMENT_TARGET%\package.json" (
   pushd "%DEPLOYMENT_TARGET%"
   call :ExecuteCmd !NPM_CMD! install --production
   IF !ERRORLEVEL! NEQ 0 goto error
   popd
 )
-
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 goto end
 
