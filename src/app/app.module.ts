@@ -26,6 +26,7 @@ import { SharedModule } from './shared/modules/shared.module';
 import { PlayerModule } from './players/players.module';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { AddLobby } from './lobbies/addlobby/addlobby.component';
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http);

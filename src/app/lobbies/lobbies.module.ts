@@ -5,7 +5,6 @@ import { SharedModule }   from '../shared/modules/shared.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { LobbyService }  from '../services/lobbies.services';
 import { routing }  from './lobbies.routing';
-import { LobbiesComponent } from '../lobbies/lobbies.component';
 import { AuthGuard } from '../auth.guard';
 import {AddLobby} from './addlobby/addlobby.component'
 import { Globals } from '../globals';
