@@ -1,2 +1,3 @@
 [config]
+command = bash scripts/deploy.sh
 command = deploy.cmd
