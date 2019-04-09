@@ -18,6 +18,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "~7.0.0",
+    "@angular/cli": "~7.0.4",
     "@angular/common": "~7.0.0",
     "@angular/compiler": "~7.0.0",
     "@angular/core": "~7.0.0",
@@ -30,12 +31,13 @@
     "@ngx-translate/http-loader": "^4.0.0",
     "@types/jest": "^23.3.9",
     "core-js": "^2.5.4",
+    "express": "^4.16.4",
     "jquery": "^3.3.1",
+    "path": "^0.12.7",
     "rxjs": "~6.3.3",
     "rxjs-compat": "^6.3.3",
-    "zone.js": "~0.8.26",
-    "@angular/cli": "~7.0.4",
-    "typescript": "~3.1.1"
+    "typescript": "~3.1.1",
+    "zone.js": "~0.8.26"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.13.8",
